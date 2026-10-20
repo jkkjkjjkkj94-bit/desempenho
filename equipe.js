@@ -1,42 +1,53 @@
 const EQUIPE=[
-{nome:'ADELAIDE SPIES',id:'adelaide.spies',turno:'T1'},
-{nome:'ALINE APARECIDA VIEIRA MATOS',id:'',turno:'T1'},
-{nome:'ANA CRISTINA DA SILVA CUCHEIRA',id:'ana.cucheira',turno:'T1'},
-{nome:'ANA LUCIA ZAKARIAN MENEGHEL',id:'ana.meneghel',turno:'T1'},
-{nome:'ANA PAULA VANI ROCHA',id:'ana.paula',turno:'T1'},
-{nome:'BRUNA POLIANE FONTOURA',id:'bruna.fontoura',turno:'T1'},
-{nome:'BRUNO HENRIQUE KOSKOSKI PAULO',id:'bruno.koskoski',turno:'T1'},
-{nome:'DAINANE VIRGÍLIO ALCANTARA',id:'daiane.alcantara',turno:'T1'},
-{nome:'ESTELA APARECIDA DOS SANTOS',id:'estela.santos',turno:'T1'},
-{nome:'EVELIN DE OLIVEIRA LUZ',id:'evelin.luz',turno:'T1'},
-{nome:'FELIPE NIVALDO BIAZAN DOS SANTOS OLIVEIRA',id:'felipe.nivaldo',turno:'T1'},
-{nome:'FERNANDO ALMEIDA DOS SANTOS',id:'fernando.santos',turno:'T1'},
-{nome:'GABRIEL SOUZA CARDOSO',id:'gabriel.cardoso',turno:'T1'},
-{nome:'GABRIELI AGOSTINHO',id:'',turno:'T1'},
-{nome:'JAINE APARECIDA DE MESQUITA',id:'jaine.apare',turno:'T1'},
-{nome:'JANE',id:'jane.demetrio',turno:'T1'},
-{nome:'JOÃO VICTOR FERREIRA DOMINGUES',id:'joão.domingues',turno:'T1'},
-{nome:'LUCAS HENRIQUE DA SILVA CORREIA',id:'lucas.silva',turno:'T1'},
-{nome:'LUCIANE CASSIANO',id:'luciane.cassiano',turno:'T1'},
-{nome:'MISAEL DAVID GODINHO',id:'misael.godinho',turno:'T1'},
-{nome:'MURILO WAGNER PORTELLA DE OLIVEIRA',id:'murilo.portella',turno:'T1'},
-{nome:'NAELLY SILVEIRA DOS SANTOS',id:'',turno:'T1'},
-{nome:'OSCAR GOMES NOGUEIRA',id:'OSCAR.GOMES',turno:'T1'},
-{nome:'PAULO HENRIQUE OLIVEIRA ARAUJO',id:'paulo.oliveira',turno:'T1'},
-{nome:'PEDRO AUGUSTO RODRIGUES FERRAZ',id:'pedro.ferraz',turno:'T1'},
-{nome:'RAYSSA',id:'rayssa.fernandes',turno:'T1'},
-{nome:'RENATA APARECIDA SILVA',id:'',turno:'T1'},
-{nome:'SABRINA CARDOSO DA SILVA',id:'sabrina.cardoso',turno:'T1'},
-{nome:'SILVIO TADEU NOGUEIRA',id:'',turno:'T1'},
-{nome:'SIMONE APARECIDA DE CAMARGO',id:'simone.camargo',turno:'T1'},
-{nome:'STEPHANI SABRINA DE SOUZA',id:'',turno:'T1'},
-{nome:'THAMIRES TUANE DOS SANTOS',id:'thamiris.martins',turno:'T1'},
-{nome:'VITOR SALVADOR DE SOUZA SANTOS',id:'vitor.santos',turno:'T1'},
-{nome:'VIVIAN HIPOLITO DOS SANTOS',id:'vivian.santos',turno:'T1'},
-{nome:'VIVIANE DE FATIMA RODRIGUES',id:'viviane.rodrigues',turno:'T1'}
+{nome:'ADELAIDE SPIES',id:'adelaide.spies',turno:'T1',edificio:'PROMO'},
+{nome:'ALINE APARECIDA VIEIRA MATOS',id:'',turno:'T1',edificio:'PROMO'},
+{nome:'ANA CRISTINA DA SILVA CUCHEIRA',id:'ana.cucheira',turno:'T1',edificio:'CAIXAS'},
+{nome:'ANA LUCIA ZAKARIAN MENEGHEL',id:'ana.meneghel',turno:'T1',edificio:'CAIXAS'},
+{nome:'ANA PAULA VANI ROCHA',id:'ana.paula',turno:'T1',edificio:'CAIXAS'},
+{nome:'BRUNA POLIANE FONTOURA',id:'bruna.fontoura',turno:'T1',edificio:'CAIXAS'},
+{nome:'BRUNO HENRIQUE KOSKOSKI PAULO',id:'bruno.koskoski',turno:'T1',edificio:'CAIXAS'},
+{nome:'DAINANE VIRGÍLIO ALCANTARA',id:'daiane.alcantara',turno:'T1',edificio:'CAIXAS'},
+{nome:'ESTELA APARECIDA DOS SANTOS',id:'estela.santos',turno:'T1',edificio:'CAIXAS'},
+{nome:'EVELIN DE OLIVEIRA LUZ',id:'evelin.luz',turno:'T1',edificio:'PROMO'},
+{nome:'FELIPE NIVALDO BIAZAN DOS SANTOS OLIVEIRA',id:'felipe.nivaldo',turno:'T1',edificio:'CAIXAS'},
+{nome:'FERNANDO ALMEIDA DOS SANTOS',id:'fernando.santos',turno:'T1',edificio:'CAIXAS'},
+{nome:'GABRIEL SOUZA CARDOSO',id:'gabriel.cardoso',turno:'T1',edificio:'CAIXAS'},
+{nome:'GABRIELI AGOSTINHO',id:'',turno:'T1',edificio:'CAIXAS'},
+{nome:'JAINE APARECIDA DE MESQUITA',id:'jaine.apare',turno:'T1',edificio:'CAIXAS'},
+{nome:'JANE',id:'jane.demetrio',turno:'T1',edificio:'CAIXAS'},
+{nome:'JOÃO VICTOR FERREIRA DOMINGUES',id:'joão.domingues',turno:'T1',edificio:'CAIXAS'},
+{nome:'LUCAS HENRIQUE DA SILVA CORREIA',id:'lucas.silva',turno:'T1',edificio:'CAIXAS'},
+{nome:'LUCIANE CASSIANO',id:'luciane.cassiano',turno:'T1',edificio:'CAIXAS'},
+{nome:'MISAEL DAVID GODINHO',id:'misael.godinho',turno:'T1',edificio:'CAIXAS'},
+{nome:'MURILO WAGNER PORTELLA DE OLIVEIRA',id:'murilo.portella',turno:'T1',edificio:'CAIXAS'},
+{nome:'NAELLY SILVEIRA DOS SANTOS',id:'',turno:'T1',edificio:'CAIXAS'},
+{nome:'OSCAR GOMES NOGUEIRA',id:'OSCAR.GOMES',turno:'T1',edificio:'CAIXAS'},
+{nome:'PAULO HENRIQUE OLIVEIRA ARAUJO',id:'paulo.oliveira',turno:'T1',edificio:'CAIXAS'},
+{nome:'PEDRO AUGUSTO RODRIGUES FERRAZ',id:'pedro.ferraz',turno:'T1',edificio:'CAIXAS'},
+{nome:'RAYSSA',id:'rayssa.fernandes',turno:'T1',edificio:'CAIXAS'},
+{nome:'RENATA APARECIDA SILVA',id:'',turno:'T1',edificio:'CAIXAS'},
+{nome:'SABRINA CARDOSO DA SILVA',id:'sabrina.cardoso',turno:'T1',edificio:'CAIXAS'},
+{nome:'SILVIO TADEU NOGUEIRA',id:'',turno:'T1',edificio:'CAIXAS'},
+{nome:'SIMONE APARECIDA DE CAMARGO',id:'simone.camargo',turno:'T1',edificio:'PROMO'},
+{nome:'STEPHANI SABRINA DE SOUZA',id:'',turno:'T1',edificio:'CAIXAS'},
+{nome:'THAMIRES TUANE DOS SANTOS',id:'thamiris.martins',turno:'T1',edificio:'CAIXAS'},
+{nome:'VITOR SALVADOR DE SOUZA SANTOS',id:'vitor.santos',turno:'T1',edificio:'CAIXAS'},
+{nome:'VIVIAN HIPOLITO DOS SANTOS',id:'vivian.santos',turno:'T1',edificio:'PROMO'},
+{nome:'VIVIANE DE FATIMA RODRIGUES',id:'viviane.rodrigues',turno:'T1',edificio:'CAIXAS'}
 ];
 const equipeNorm=s=>String(s||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-let turnoAtivo='';
-function renderEquipe(q='',turno=turnoAtivo){const body=document.getElementById('teamRows'),info=document.getElementById('teamInfo');if(!body)return;const query=equipeNorm(q);const rows=EQUIPE.filter(p=>(!turno||p.turno===turno)&&(!query||equipeNorm(p.nome).includes(query)||equipeNorm(p.id).includes(query)||equipeNorm(p.turno).includes(query)));body.innerHTML=rows.map(p=>`<tr><td>${p.nome}</td><td>${p.id||'<span class="no-id">ID não informado</span>'}</td><td><span class="shift-badge">${p.turno}</span></td></tr>`).join('');if(info)info.textContent=`${rows.length} pessoas encontradas${turno?' no '+turno:''}`}
-function aplicarFiltroTurno(turno){turnoAtivo=turno;if(typeof selectedUsers==='undefined'||typeof applyFilters!=='function')return;if(!turno){selectedUsers.clear();if(typeof renderUserOptions==='function')renderUserOptions();applyFilters();return}const ids=new Set(EQUIPE.filter(p=>p.turno===turno&&p.id).map(p=>equipeNorm(p.id)));selectedUsers.clear();allUsers.filter(u=>ids.has(equipeNorm(u))).forEach(u=>selectedUsers.add(u));if(typeof renderUserOptions==='function')renderUserOptions();applyFilters()}
-document.addEventListener('DOMContentLoaded',()=>{renderEquipe();const search=document.getElementById('teamSearch');if(search)search.addEventListener('input',()=>renderEquipe(search.value,turnoAtivo));const buttons=document.querySelectorAll('#shiftSwitch .shift-option');buttons.forEach(btn=>btn.addEventListener('click',()=>{buttons.forEach(b=>b.classList.remove('active'));btn.classList.add('active');aplicarFiltroTurno(btn.dataset.shift||'');renderEquipe(search?.value||'',turnoAtivo)}));const clear=document.getElementById('clearFilters');if(clear)clear.addEventListener('click',()=>{turnoAtivo='';buttons.forEach(b=>b.classList.toggle('active',!b.dataset.shift));renderEquipe(search?.value||'','')})});
+let turnoAtivo='',edificioAtivo='';
+function equipePermitida(p){return(!turnoAtivo||p.turno===turnoAtivo)&&(!edificioAtivo||p.edificio===edificioAtivo)}
+function renderEquipe(q=''){const body=document.getElementById('teamRows'),info=document.getElementById('teamInfo');if(!body)return;const query=equipeNorm(q);const rows=EQUIPE.filter(p=>equipePermitida(p)&&(!query||equipeNorm(p.nome).includes(query)||equipeNorm(p.id).includes(query)||equipeNorm(p.turno).includes(query)||equipeNorm(p.edificio).includes(query)));body.innerHTML=rows.map(p=>`<tr><td>${p.nome}</td><td>${p.id||'<span class="no-id">ID não informado</span>'}</td><td><span class="shift-badge">${p.turno}</span></td><td><span class="shift-badge">${p.edificio}</span></td></tr>`).join('');if(info){const filtros=[turnoAtivo,edificioAtivo].filter(Boolean).join(' • ');info.textContent=`${rows.length} pessoas encontradas${filtros?' em '+filtros:''}`}}
+function aplicarFiltrosEquipe(){if(typeof applyFilters==='function')applyFilters()}
+document.addEventListener('DOMContentLoaded',()=>{
+ const shift=document.getElementById('shiftSwitch');
+ if(shift&&!document.getElementById('buildingSwitch')){const box=document.createElement('div');box.className='shift-switch';box.id='buildingSwitch';box.innerHTML='<span>Visualizar edifício</span><button type="button" class="shift-option active" data-building="">Todos</button><button type="button" class="shift-option" data-building="PROMO">Promo</button><button type="button" class="shift-option" data-building="CAIXAS">Caixas</button>';shift.insertAdjacentElement('afterend',box)}
+ const head=document.querySelector('.team-table thead tr');if(head&&!head.querySelector('[data-building-head]'))head.insertAdjacentHTML('beforeend','<th data-building-head>Edifício</th>');
+ const search=document.getElementById('teamSearch');if(search){search.placeholder='Buscar nome, ID, turno ou edifício...';search.addEventListener('input',()=>renderEquipe(search.value))}
+ if(typeof applyFilters==='function'){applyFilters=function(){const s=document.getElementById('filterStart')?.value||'',e=document.getElementById('filterEnd')?.value||'';const permitidos=new Set(EQUIPE.filter(equipePermitida).map(p=>equipeNorm(p.id)).filter(Boolean));const filtroEquipe=Boolean(turnoAtivo||edificioAtivo);filteredRows=allRows.filter(r=>(!filtroEquipe||permitidos.has(equipeNorm(r.usuario)))&&(!selectedUsers.size||selectedUsers.has(r.usuario))&&(!s||r.data>=s)&&(!e||r.data<=e));render()}}
+ const shiftButtons=document.querySelectorAll('#shiftSwitch .shift-option');shiftButtons.forEach(btn=>btn.addEventListener('click',()=>{shiftButtons.forEach(b=>b.classList.remove('active'));btn.classList.add('active');turnoAtivo=btn.dataset.shift||'';aplicarFiltrosEquipe();renderEquipe(search?.value||'')}));
+ const buildingButtons=document.querySelectorAll('#buildingSwitch .shift-option');buildingButtons.forEach(btn=>btn.addEventListener('click',()=>{buildingButtons.forEach(b=>b.classList.remove('active'));btn.classList.add('active');edificioAtivo=btn.dataset.building||'';aplicarFiltrosEquipe();renderEquipe(search?.value||'')}));
+ const clear=document.getElementById('clearFilters');if(clear)clear.addEventListener('click',()=>{turnoAtivo='';edificioAtivo='';shiftButtons.forEach(b=>b.classList.toggle('active',!b.dataset.shift));buildingButtons.forEach(b=>b.classList.toggle('active',!b.dataset.building));renderEquipe(search?.value||'')});
+ renderEquipe();
+});
