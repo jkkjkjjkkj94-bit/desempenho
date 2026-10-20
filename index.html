@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Desempenho | Separação de Caixaria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-icon">D</span><div><strong>Desempenho</strong><small>Separação de caixaria</small></div></div>
+    <nav>
+      <button class="nav active" data-page="dashboard">▦ <span>Visão geral</span></button>
+      <button class="nav" data-page="lancamento">＋ <span>Novo lançamento</span></button>
+      <button class="nav" data-page="dados">⇅ <span>Importar / Exportar</span></button>
+    </nav>
+    <div class="status"><span id="statusDot"></span><div><b>Supabase</b><small id="statusText">Conectando...</small></div></div>
+  </aside>
+
+  <main>
+    <header><div><h1 id="pageTitle">Visão geral</h1><p id="pageSubtitle">Acompanhe a produtividade da separação.</p></div><button class="ghost" id="refreshBtn">↻ Atualizar</button></header>
+
+    <section class="page active" id="dashboard">
+      <div class="filters card">
+        <div><label>Usuário</label><select id="filterUser"><option value="">Todos os usuários</option></select></div>
+        <div><label>Data inicial</label><input type="date" id="filterStart"></div>
+        <div><label>Data final</label><input type="date" id="filterEnd"></div>
+        <button class="primary" id="applyFilters">Aplicar filtros</button>
+        <button class="ghost" id="clearFilters">Limpar</button>
+      </div>
+      <div class="kpis">
+        <article class="card kpi"><span>Total de caixas</span><strong id="kpiBoxes">0</strong><small>no período selecionado</small></article>
+        <article class="card kpi"><span>Usuários</span><strong id="kpiUsers">0</strong><small>com produção registrada</small></article>
+        <article class="card kpi"><span>Registros</span><strong id="kpiRows">0</strong><small>lançamentos encontrados</small></article>
+        <article class="card kpi"><span>Média por registro</span><strong id="kpiAvg">0</strong><small>caixas separadas</small></article>
+      </div>
+      <div class="grid2">
+        <article class="card"><div class="card-head"><div><h2>Ranking de usuários</h2><p>Total de caixas no período</p></div></div><div id="ranking" class="ranking"></div></article>
+        <article class="card"><div class="card-head"><div><h2>Produção por dia</h2><p>Totais diários</p></div></div><div id="daily" class="daily"></div></article>
+      </div>
+      <article class="card table-card"><div class="card-head"><div><h2>Registros</h2><p id="tableInfo">Dados detalhados</p></div><button class="ghost" id="exportFiltered">Exportar CSV</button></div><div class="table-wrap"><table><thead><tr><th>Usuário</th><th>Data</th><th>Caixas separadas</th></tr></thead><tbody id="recordsBody"></tbody></table></div></article>
+    </section>
+
+    <section class="page" id="lancamento">
+      <article class="card form-card"><div class="card-head"><div><h2>Registrar separação</h2><p>Informe o usuário, a data e a quantidade de caixas.</p></div></div><form id="entryForm"><div class="form-grid"><div><label>Usuário</label><input id="entryUser" required placeholder="ex.: luan.madornado"></div><div><label>Data</label><input id="entryDate" type="date" required></div><div><label>Caixas separadas</label><input id="entryBoxes" type="number" min="0" step="1" required placeholder="0"></div></div><button class="primary" type="submit">Salvar lançamento</button></form><div id="entryMessage" class="message"></div></article>
+    </section>
+
+    <section class="page" id="dados">
+      <div class="grid2">
+        <article class="card action-card"><div class="action-icon">⇧</div><h2>Importar CSV</h2><p>Importe arquivos com as colunas <b>ID</b>, <b>Data</b> e <b>Caixas separadas</b>. Também aceitamos usuário/usuario e caixas_separadas.</p><input id="csvFile" type="file" accept=".csv,text/csv"><button class="primary" id="importBtn">Importar para o Supabase</button><div id="importMessage" class="message"></div></article>
+        <article class="card action-card"><div class="action-icon">⇩</div><h2>Exportar CSV</h2><p>Baixe todos os registros atuais do banco de dados para análise ou backup.</p><button class="primary" id="exportAll">Exportar todos os dados</button></article>
+      </div>
+      <article class="card danger-zone"><div><h2>Excluir todos os dados</h2><p>Esta ação apaga todos os registros da visão geral e do banco Supabase. Não pode ser desfeita.</p></div><button class="danger" id="deleteAll">Excluir todos os dados</button></article>
+    </section>
+  </main>
+</div>
+<div id="toast" class="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+</body>
+</html>
