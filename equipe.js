@@ -50,4 +50,17 @@ document.addEventListener('DOMContentLoaded',()=>{
  const buildingButtons=document.querySelectorAll('#buildingSwitch .shift-option');buildingButtons.forEach(btn=>btn.addEventListener('click',()=>{buildingButtons.forEach(b=>b.classList.remove('active'));btn.classList.add('active');edificioAtivo=btn.dataset.building||'';aplicarFiltrosEquipe();renderEquipe(search?.value||'')}));
  const clear=document.getElementById('clearFilters');if(clear)clear.addEventListener('click',()=>{turnoAtivo='';edificioAtivo='';shiftButtons.forEach(b=>b.classList.toggle('active',!b.dataset.shift));buildingButtons.forEach(b=>b.classList.toggle('active',!b.dataset.building));renderEquipe(search?.value||'')});
  renderEquipe();
+ // Carregamento rápido: exibe o último snapshot imediatamente e atualiza com o Supabase em segundo plano.
+ if(typeof fetchAll==='function'){
+  const originalFetchAll=fetchAll;
+  fetchAll=async function(){
+   try{const cache=localStorage.getItem('desempenho_cache_v1');if(cache&&!allRows.length){const parsed=JSON.parse(cache);if(Array.isArray(parsed.rows)&&parsed.rows.length){allRows=parsed.rows;populateUsers();applyFilters();setConnection(true,'Atualizando...')}}}catch(e){}
+   await originalFetchAll();
+   try{localStorage.setItem('desempenho_cache_v1',JSON.stringify({savedAt:Date.now(),rows:allRows}))}catch(e){}
+  }
+ }
+ // Gráficos de evolução diária e mensal, criados sem ocupar espaço quando não há dados.
+ const ranking=document.getElementById('ranking')?.closest('.grid2');
+ if(ranking&&!document.getElementById('dailyChart')){const charts=document.createElement('div');charts.className='grid2';charts.innerHTML='<article class="card" style="padding:19px"><div class="card-head"><div><h2>Evolução diária</h2><p>Últimos 31 dias com produção</p></div></div><div style="height:260px"><canvas id="dailyChart"></canvas></div></article><article class="card" style="padding:19px"><div class="card-head"><div><h2>Evolução mensal</h2><p>Comparativo dos últimos 12 meses</p></div></div><div style="height:260px"><canvas id="monthlyChart"></canvas></div></article>';ranking.insertAdjacentElement('afterend',charts)}
+ const chartLib=document.createElement('script');chartLib.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js';chartLib.onload=()=>{const s=document.createElement('script');s.src='charts.js?v=20261020-1';document.body.appendChild(s)};document.body.appendChild(chartLib);
 });
