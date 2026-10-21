@@ -23,15 +23,15 @@ header .shift-switch:nth-of-type(2){grid-column:2}
 .filters{padding:9px 10px;gap:7px;border-color:#e7ecf2}.filters label{font-size:9px;color:#7c8796;margin-bottom:5px}.filters input,.filters .multi-trigger,.filters .primary,.filters .ghost{height:34px;border-radius:8px}
 .kpis{gap:10px}.kpi{padding:15px 17px}.kpi span{font-size:10px}.kpi strong{font-size:24px;margin:8px 0 2px;letter-spacing:-.03em}
 .grid2{gap:10px}.grid2>.card,.table-card{padding:17px}.card-head{margin-bottom:13px}.card-head h2{font-size:13px}
-.rank-row{grid-template-columns:24px 34px minmax(105px,1fr) 1.5fr 70px;min-height:38px;border-bottom:1px solid #f1f4f7}.rank-row:last-child{border-bottom:0}.rank-avatar{width:26px;height:26px;border-radius:8px;background:#eef3f8;color:#0b3b6f;display:grid;place-items:center;font-size:9px;font-weight:800}.rank-num{font-size:9px;color:#9aa4b2}.rank-row b{font-size:10px}.bar{height:4px;background:#edf1f5}.bar i{background:#0b3b6f}
+.rank-row{grid-template-columns:24px minmax(105px,1fr) 1.5fr 70px;min-height:38px;border-bottom:1px solid #f1f4f7}.rank-row:last-child{border-bottom:0}.rank-avatar{display:none!important}.rank-num{font-size:9px;color:#9aa4b2}.rank-row b{font-size:10px}.bar{height:4px;background:#edf1f5}.bar i{background:#0b3b6f}
 .table-wrap{border-color:#edf1f5}th{background:#fafbfd}th,td{border-bottom-color:#f0f3f6}
 .primary{background:#0b3b6f;border-color:#0b3b6f}.ghost{border-color:#dfe5ec}
 .nav[data-page="paletes"],#paletes,#profileUzSummary{display:none!important}
 @media(max-width:1050px){header>div:first-child{display:block}header .shift-switch{margin-top:9px}}
 `;
  document.head.appendChild(style);
- const ranking=document.getElementById('ranking');
- if(ranking){new MutationObserver(()=>{ranking.querySelectorAll('.rank-row').forEach(row=>{if(row.querySelector('.rank-avatar'))return;const name=row.querySelector('b');if(!name)return;const a=document.createElement('span');a.className='rank-avatar';a.textContent=(name.textContent.trim()[0]||'U').toUpperCase();name.before(a)})}).observe(ranking,{childList:true});}
+ function removeRankAvatars(){document.querySelectorAll('#ranking .rank-avatar').forEach(x=>x.remove())}
+ const ranking=document.getElementById('ranking');if(ranking){removeRankAvatars();new MutationObserver(removeRankAvatars).observe(ranking,{childList:true,subtree:true})}
  function hideUz(){
   document.querySelector('.nav[data-page="paletes"]')?.remove();
   document.getElementById('paletes')?.setAttribute('aria-hidden','true');
