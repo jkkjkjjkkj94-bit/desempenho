@@ -1,0 +1,8 @@
+/* Filtros globais: turno e edificio */
+header .shift-switch{display:inline-flex;align-items:center;gap:3px;margin-top:12px;padding:3px;background:#f1f5f9;border:1px solid #e7edf4;border-radius:10px;vertical-align:middle}
+header .shift-switch+ .shift-switch{margin-left:8px}
+header .shift-switch>span{font-size:9px;font-weight:700;color:#64748b;padding:0 8px 0 6px;margin:0;white-space:nowrap}
+header .shift-option{height:30px;min-width:44px;padding:0 12px;border:0;border-radius:7px;background:transparent;color:#64748b;font-size:10px;font-weight:700;cursor:pointer;box-shadow:none;transition:background .15s ease,color .15s ease,box-shadow .15s ease}
+header .shift-option:hover{background:#e5ebf2;color:#1f2937;border:0}
+header .shift-option.active{background:#0b3b6f;color:#fff;border:0;box-shadow:0 1px 3px rgba(15,23,42,.12)}
+@media(max-width:900px){header .shift-switch{display:flex;width:max-content;max-width:100%;overflow-x:auto}header .shift-switch+ .shift-switch{margin-left:0;margin-top:7px}}
