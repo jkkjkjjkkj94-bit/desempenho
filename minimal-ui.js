@@ -26,11 +26,21 @@ header .shift-switch:nth-of-type(2){grid-column:2}
 .rank-row{grid-template-columns:24px 34px minmax(105px,1fr) 1.5fr 70px;min-height:38px;border-bottom:1px solid #f1f4f7}.rank-row:last-child{border-bottom:0}.rank-avatar{width:26px;height:26px;border-radius:8px;background:#eef3f8;color:#0b3b6f;display:grid;place-items:center;font-size:9px;font-weight:800}.rank-num{font-size:9px;color:#9aa4b2}.rank-row b{font-size:10px}.bar{height:4px;background:#edf1f5}.bar i{background:#0b3b6f}
 .table-wrap{border-color:#edf1f5}th{background:#fafbfd}th,td{border-bottom-color:#f0f3f6}
 .primary{background:#0b3b6f;border-color:#0b3b6f}.ghost{border-color:#dfe5ec}
+.nav[data-page="paletes"],#paletes,#profileUzSummary{display:none!important}
 @media(max-width:1050px){header>div:first-child{display:block}header .shift-switch{margin-top:9px}}
 `;
  document.head.appendChild(style);
  const ranking=document.getElementById('ranking');
  if(ranking){new MutationObserver(()=>{ranking.querySelectorAll('.rank-row').forEach(row=>{if(row.querySelector('.rank-avatar'))return;const name=row.querySelector('b');if(!name)return;const a=document.createElement('span');a.className='rank-avatar';a.textContent=(name.textContent.trim()[0]||'U').toUpperCase();name.before(a)})}).observe(ranking,{childList:true});}
+ function hideUz(){
+  document.querySelector('.nav[data-page="paletes"]')?.remove();
+  document.getElementById('paletes')?.setAttribute('aria-hidden','true');
+  document.getElementById('profileUzSummary')?.remove();
+  const type=document.getElementById('historyType');if(type){[...type.options].filter(o=>o.value==='UZ').forEach(o=>o.remove())}
+  document.querySelectorAll('.admin-card,.action-card').forEach(el=>{const t=(el.textContent||'').toUpperCase();if(t.includes('CSV DE UZ')||t.includes('IMPORTAR UZ')||t.includes('EXPORTAR UZ'))el.style.display='none'});
+  document.querySelectorAll('#historico p,.admin-card small').forEach(el=>{if((el.textContent||'').includes('UZ'))el.textContent=el.textContent.replace(/\s*e\s*UZ/gi,'').replace(/,?\s*UZ/gi,'')});
+ }
+ hideUz();new MutationObserver(hideUz).observe(document.body,{childList:true,subtree:true});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
