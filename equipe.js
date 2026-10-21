@@ -1,19 +1,161 @@
-const EQUIPE_DB=supabase.createClient('https://innziuzgtpfsiywqmies.supabase.co','sb_publishable_fJB7zijdznI9ob9l9jSGlQ_6oU_J-d1');
-let EQUIPE=[];
-const equipeNorm=s=>String(s||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-let turnoAtivo='',edificioAtivo='';
-function equipePermitida(p){return(!turnoAtivo||p.turno===turnoAtivo)&&(!edificioAtivo||p.edificio===edificioAtivo)}
-function idsEquipeAtiva(){if(!turnoAtivo&&!edificioAtivo)return null;return new Set(EQUIPE.filter(equipePermitida).map(p=>equipeNorm(p.id)).filter(Boolean))}
-async function carregarEquipe(){try{let dados=[],from=0;while(true){const{data,error}=await EQUIPE_DB.from('equipe').select('id,matricula,nome_completo,turno,edificio').order('nome_completo').range(from,from+999);if(error)throw error;dados.push(...(data||[]));if(!data||data.length<1000)break;from+=1000}EQUIPE=dados.map(p=>({dbId:p.id,nome:p.nome_completo||p.matricula,id:p.matricula||'',turno:String(p.turno||'').trim().toUpperCase(),edificio:String(p.edificio||'').trim().toUpperCase()==='CAIXA'?'CAIXAS':String(p.edificio||'').trim().toUpperCase()}));return true}catch(e){console.error('Erro ao carregar equipe:',e);const info=document.getElementById('teamInfo');if(info)info.textContent='Erro ao carregar equipe do banco de dados';return false}}
-function renderEquipe(q=''){const body=document.getElementById('teamRows'),info=document.getElementById('teamInfo');if(!body)return;const query=equipeNorm(q),rows=EQUIPE.filter(p=>equipePermitida(p)&&(!query||[p.nome,p.id,p.turno,p.edificio].some(v=>equipeNorm(v).includes(query))));body.innerHTML=rows.length?rows.map(p=>`<tr><td>${escapeHtml(p.nome)}</td><td>${p.id?escapeHtml(p.id):'<span class="no-id">ID não informado</span>'}</td><td><span class="shift-badge">${escapeHtml(p.turno||'—')}</span></td><td><span class="shift-badge">${escapeHtml(p.edificio||'—')}</span></td><td><div class="row-actions"><button type="button" class="ghost mini edit-team" data-id="${p.dbId}">Editar</button><button type="button" class="danger mini delete-team" data-id="${p.dbId}">Excluir</button></div></td></tr>`).join(''):'<tr><td colspan="5" class="empty">Nenhuma pessoa encontrada.</td></tr>';body.querySelectorAll('.edit-team').forEach(b=>b.addEventListener('click',()=>abrirEdicaoEquipe(Number(b.dataset.id))));body.querySelectorAll('.delete-team').forEach(b=>b.addEventListener('click',()=>excluirRegistroEquipe(Number(b.dataset.id))));if(info)info.textContent=`${rows.length} pessoas encontradas${[turnoAtivo,edificioAtivo].filter(Boolean).length?' em '+[turnoAtivo,edificioAtivo].filter(Boolean).join(' • '):''}`}
-function criarEditorEquipe(){if(document.getElementById('teamEditModal'))return;const modal=document.createElement('div');modal.id='teamEditModal';modal.className='team-edit-modal';modal.innerHTML='<div class="team-edit-box"><div class="card-head"><div><h2>Editar pessoa</h2><p>Altere os dados do cadastro da equipe.</p></div><button type="button" class="ghost mini" id="teamEditClose">Fechar</button></div><form id="teamEditForm"><input type="hidden" id="teamEditDbId"><div class="team-edit-grid"><div><label>Nome completo</label><input id="teamEditName" required></div><div><label>ID</label><input id="teamEditId" required></div><div><label>Turno</label><select id="teamEditShift"><option value="">Não informado</option><option value="T1">T1</option><option value="T2">T2</option><option value="T3">T3</option></select></div><div><label>Edifício</label><select id="teamEditBuilding"><option value="">Não informado</option><option value="CAIXAS">CAIXAS</option><option value="PROMO">PROMO</option></select></div></div><div class="form-actions"><button class="primary" type="submit">Salvar alterações</button><button class="ghost" type="button" id="teamEditCancel">Cancelar</button></div><div id="teamEditMessage" class="message"></div></form></div>';document.body.appendChild(modal);const fechar=()=>modal.classList.remove('open');document.getElementById('teamEditClose').onclick=fechar;document.getElementById('teamEditCancel').onclick=fechar;modal.addEventListener('click',e=>{if(e.target===modal)fechar()});document.getElementById('teamEditForm').addEventListener('submit',salvarEdicaoEquipe)}
-function abrirEdicaoEquipe(dbId){const p=EQUIPE.find(x=>x.dbId===dbId);if(!p)return;criarEditorEquipe();document.getElementById('teamEditDbId').value=p.dbId;document.getElementById('teamEditName').value=p.nome;document.getElementById('teamEditId').value=p.id;document.getElementById('teamEditShift').value=p.turno;document.getElementById('teamEditBuilding').value=p.edificio;document.getElementById('teamEditMessage').textContent='';document.getElementById('teamEditModal').classList.add('open')}
-async function salvarEdicaoEquipe(e){e.preventDefault();const dbId=Number(document.getElementById('teamEditDbId').value),nome=document.getElementById('teamEditName').value.trim(),matricula=document.getElementById('teamEditId').value.trim(),turno=document.getElementById('teamEditShift').value,edificio=document.getElementById('teamEditBuilding').value,msg=document.getElementById('teamEditMessage'),btn=e.currentTarget.querySelector('button[type="submit"]');if(!nome||!matricula){msg.textContent='Nome completo e ID são obrigatórios.';return}btn.disabled=true;btn.textContent='Salvando...';try{const{data:dup,error:dupError}=await EQUIPE_DB.from('equipe').select('id').eq('matricula',matricula).neq('id',dbId).limit(1);if(dupError)throw dupError;if(dup&&dup.length)throw new Error('Este ID já está cadastrado para outra pessoa.');const{error}=await EQUIPE_DB.from('equipe').update({nome_completo:nome,matricula,turno:turno||null,edificio:edificio||null}).eq('id',dbId);if(error)throw error;msg.textContent='Cadastro atualizado com sucesso.';await carregarEquipe();renderEquipe(document.getElementById('teamSearch')?.value||'');aplicarFiltrosEquipe();setTimeout(()=>document.getElementById('teamEditModal')?.classList.remove('open'),450)}catch(err){console.error(err);msg.textContent='Erro ao salvar: '+err.message}finally{btn.disabled=false;btn.textContent='Salvar alterações'}}
-async function excluirRegistroEquipe(dbId){const p=EQUIPE.find(x=>x.dbId===dbId);if(!p)return;if(!confirm(`Excluir o cadastro de ${p.nome}?\n\nID: ${p.id||'não informado'}\n\nEsta ação remove a pessoa da Equipe e Qualidade.`))return;try{const{data,error}=await EQUIPE_DB.from('equipe').delete().eq('id',dbId).select('id');if(error)throw error;if(!data||!data.length)throw new Error('O registro não foi excluído. Verifique a permissão de DELETE no Supabase.');await carregarEquipe();renderEquipe(document.getElementById('teamSearch')?.value||'');aplicarFiltrosEquipe();if(typeof showToast==='function')showToast('Registro excluído da equipe.')}catch(err){console.error(err);alert('Não foi possível excluir: '+err.message)}}
-function aplicarFiltrosEquipe(){const s=document.getElementById('filterStart')?.value||'',e=document.getElementById('filterEnd')?.value||'',permitidos=idsEquipeAtiva();filteredRows=allRows.filter(r=>{const id=equipeNorm(r.usuario);return(!permitidos||permitidos.has(id))&&(!selectedUsers.size||[...selectedUsers].some(u=>equipeNorm(u)===id))&&(!s||r.data>=s)&&(!e||r.data<=e)});render();renderExtrasEquipe()}
-function periodoAtual(){const s=document.getElementById('filterStart')?.value||'',e=document.getElementById('filterEnd')?.value||'',h=new Date().toLocaleDateString('en-CA');return[s||e||h,e||s||h]}
-function renderSemProducao(){const box=document.getElementById('semProducaoRows'),info=document.getElementById('semProducaoInfo');if(!box)return;const[inicio,fim]=periodoAtual(),equipe=EQUIPE.filter(equipePermitida).filter(p=>p.id),produzindo=new Set(allRows.filter(r=>r.data>=inicio&&r.data<=fim).map(r=>equipeNorm(r.usuario))),faltantes=equipe.filter(p=>!produzindo.has(equipeNorm(p.id)));box.innerHTML=faltantes.length?faltantes.map(p=>`<tr><td>${escapeHtml(p.nome)}</td><td>${escapeHtml(p.id)}</td><td><span class="shift-badge">${escapeHtml(p.turno)}</span></td><td><span class="shift-badge">${escapeHtml(p.edificio)}</span></td></tr>`).join(''):'<tr><td colspan="4" class="empty">Todos os usuários cadastrados possuem produção no período.</td></tr>';if(info)info.textContent=`${faltantes.length} sem produção • ${dateBR(inicio)}${fim!==inicio?' até '+dateBR(fim):''}`}
-function renderQualidade(){const root=document.getElementById('qualityRows'),summary=document.getElementById('qualitySummary');if(!root||!summary)return;const equipeIds=new Set(EQUIPE.map(p=>equipeNorm(p.id)).filter(Boolean)),prodIds=[...new Set(allRows.map(r=>String(r.usuario||'').trim()).filter(Boolean))],nao=prodIds.filter(id=>!equipeIds.has(equipeNorm(id))).sort((a,b)=>a.localeCompare(b,'pt-BR')),semId=EQUIPE.filter(p=>!p.id),inc=EQUIPE.filter(p=>p.id&&(!p.turno||!p.edificio)),seen=new Map(),dup=[];allRows.forEach(r=>{const k=`${equipeNorm(r.usuario)}|${r.data}|${Number(r.caixas_separadas)}`;seen.set(k,(seen.get(k)||0)+1)});seen.forEach((n,k)=>{if(n>1)dup.push({k,n})});summary.innerHTML=[['IDs na produção sem cadastro',nao.length],['Pessoas sem ID',semId.length],['Cadastros incompletos',inc.length],['Possíveis registros duplicados',dup.reduce((a,x)=>a+x.n-1,0)]].map(([t,n])=>`<div class="card kpi"><span>${t}</span><strong>${n}</strong></div>`).join('');let rows=[];nao.forEach(id=>rows.push(['ID não cadastrado',id,'Existe na produção, mas não está na equipe']));semId.forEach(p=>rows.push(['ID ausente',p.nome,`${p.turno} • ${p.edificio}`]));inc.forEach(p=>rows.push(['Cadastro incompleto',p.id,p.nome]));dup.slice(0,100).forEach(x=>{const[u,d,v]=x.k.split('|');rows.push(['Possível duplicidade',u,`${dateBR(d)} • ${v} itens • ${x.n} registros`])});root.innerHTML=rows.length?rows.map(r=>`<tr><td>${escapeHtml(r[0])}</td><td>${escapeHtml(r[1])}</td><td>${escapeHtml(r[2])}</td></tr>`).join(''):'<tr><td colspan="3" class="empty">Nenhuma inconsistência encontrada.</td></tr>'}
-function renderExtrasEquipe(){renderSemProducao();renderQualidade()}
-function criarCardsEquipe(){const team=document.querySelector('.team-card');if(team){const th=team.querySelector('thead tr');if(th&&!th.querySelector('.team-action-head'))th.insertAdjacentHTML('beforeend','<th class="team-action-head">Ações</th>')}if(team&&!document.getElementById('semProducaoCard')){const c=document.createElement('article');c.className='card table-card';c.id='semProducaoCard';c.innerHTML='<div class="card-head"><div><h2>Usuários sem produção</h2><p id="semProducaoInfo">Verificando o período...</p></div></div><div class="table-wrap"><table><thead><tr><th>Nome completo</th><th>ID</th><th>Turno</th><th>Edifício</th></tr></thead><tbody id="semProducaoRows"></tbody></table></div>';team.insertAdjacentElement('afterend',c)}const sem=document.getElementById('semProducaoCard');if(sem&&!document.getElementById('qualityCard')){const q=document.createElement('article');q.className='card table-card';q.id='qualityCard';q.innerHTML='<div class="card-head"><div><h2>Qualidade dos dados</h2><p>Inconsistências encontradas automaticamente na base</p></div></div><div id="qualitySummary" class="kpis" style="padding:0 19px 19px"></div><div class="table-wrap"><table><thead><tr><th>Problema</th><th>Usuário / Pessoa</th><th>Detalhe</th></tr></thead><tbody id="qualityRows"></tbody></table></div>';sem.insertAdjacentElement('afterend',q)}}
-document.addEventListener('DOMContentLoaded',async()=>{const search=document.getElementById('teamSearch'),shiftButtons=[...document.querySelectorAll('#shiftSwitch .shift-option')],buildingButtons=[...document.querySelectorAll('#buildingSwitch .shift-option')];criarCardsEquipe();criarEditorEquipe();if(search)search.addEventListener('input',()=>renderEquipe(search.value));shiftButtons.forEach(btn=>btn.addEventListener('click',()=>{shiftButtons.forEach(b=>b.classList.remove('active'));btn.classList.add('active');turnoAtivo=String(btn.dataset.shift||'').toUpperCase();aplicarFiltrosEquipe();renderEquipe(search?.value||'')}));buildingButtons.forEach(btn=>btn.addEventListener('click',()=>{buildingButtons.forEach(b=>b.classList.remove('active'));btn.classList.add('active');edificioAtivo=String(btn.dataset.building||'').toUpperCase();aplicarFiltrosEquipe();renderEquipe(search?.value||'')}));const applyBtn=document.getElementById('applyFilters');if(applyBtn)applyBtn.addEventListener('click',()=>setTimeout(aplicarFiltrosEquipe,0));const start=document.getElementById('filterStart'),end=document.getElementById('filterEnd');[start,end].filter(Boolean).forEach(el=>el.addEventListener('change',()=>setTimeout(aplicarFiltrosEquipe,0));const userOptions=document.getElementById('userOptions');if(userOptions)userOptions.addEventListener('change',()=>setTimeout(aplicarFiltrosEquipe,0));const selectAll=document.getElementById('selectAllUsers'),clearUsers=document.getElementById('clearUsers');if(selectAll)selectAll.addEventListener('click',()=>setTimeout(aplicarFiltrosEquipe,0));if(clearUsers)clearUsers.addEventListener('click',()=>setTimeout(aplicarFiltrosEquipe,0));const clear=document.getElementById('clearFilters');if(clear)clear.addEventListener('click',()=>setTimeout(()=>{turnoAtivo='';edificioAtivo='';shiftButtons.forEach(b=>b.classList.toggle('active',!b.dataset.shift));buildingButtons.forEach(b=>b.classList.toggle('active',!b.dataset.building));aplicarFiltrosEquipe();renderEquipe(search?.value||'')},0));await carregarEquipe();renderEquipe();aplicarFiltrosEquipe();const refresh=document.getElementById('refreshBtn');if(refresh)refresh.addEventListener('click',()=>setTimeout(async()=>{await carregarEquipe();renderEquipe(search?.value||'');aplicarFiltrosEquipe()},300));});
+const teamDb=supabase.createClient('https://innziuzgtpfsiywqmies.supabase.co','sb_publishable_fJB7zijdznI9ob9l9jSGlQ_6oU_J-d1');
+let teamRowsData=[];
+let teamShift='';
+let teamBuilding='';
+const teamNorm=v=>String(v||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+
+async function loadTeam(){
+  const info=document.getElementById('teamInfo');
+  if(info) info.textContent='Carregando equipe...';
+  try{
+    const {data,error}=await teamDb.from('equipe').select('id,matricula,nome_completo,turno,edificio').order('nome_completo').limit(1000);
+    if(error) throw error;
+    teamRowsData=(data||[]).map(p=>({
+      dbId:p.id,
+      id:String(p.matricula||'').trim(),
+      nome:String(p.nome_completo||p.matricula||'').trim(),
+      turno:String(p.turno||'').trim().toUpperCase(),
+      edificio:String(p.edificio||'').trim().toUpperCase()==='CAIXA'?'CAIXAS':String(p.edificio||'').trim().toUpperCase()
+    }));
+    renderTeam();
+    applyTeamFilters();
+  }catch(err){
+    console.error('Equipe:',err);
+    if(info) info.textContent='Erro ao carregar equipe: '+err.message;
+  }
+}
+
+function teamAllowed(p){
+  return (!teamShift||p.turno===teamShift)&&(!teamBuilding||p.edificio===teamBuilding);
+}
+
+function renderTeam(){
+  const body=document.getElementById('teamRows');
+  const info=document.getElementById('teamInfo');
+  const search=document.getElementById('teamSearch');
+  if(!body) return;
+  const q=teamNorm(search?.value||'');
+  const rows=teamRowsData.filter(p=>teamAllowed(p)&&(!q||[p.nome,p.id,p.turno,p.edificio].some(v=>teamNorm(v).includes(q))));
+  body.innerHTML=rows.length?rows.map(p=>`<tr><td>${escapeHtml(p.nome)}</td><td>${escapeHtml(p.id)}</td><td><span class="shift-badge">${escapeHtml(p.turno||'—')}</span></td><td><span class="shift-badge">${escapeHtml(p.edificio||'—')}</span></td><td><div class="row-actions"><button class="ghost mini team-edit" data-id="${p.dbId}" type="button">Editar</button><button class="danger mini team-delete" data-id="${p.dbId}" type="button">Excluir</button></div></td></tr>`).join(''):'<tr><td colspan="5" class="empty">Nenhuma pessoa encontrada.</td></tr>';
+  body.querySelectorAll('.team-edit').forEach(b=>b.onclick=()=>openTeamEdit(Number(b.dataset.id)));
+  body.querySelectorAll('.team-delete').forEach(b=>b.onclick=()=>deleteTeamRow(Number(b.dataset.id)));
+  if(info) info.textContent=`${rows.length} pessoas encontradas`;
+}
+
+function applyTeamFilters(){
+  if(typeof allRows==='undefined'||typeof filteredRows==='undefined') return;
+  const start=document.getElementById('filterStart')?.value||'';
+  const end=document.getElementById('filterEnd')?.value||'';
+  let allowed=null;
+  if(teamShift||teamBuilding){
+    allowed=new Set(teamRowsData.filter(teamAllowed).map(p=>teamNorm(p.id)).filter(Boolean));
+  }
+  filteredRows=allRows.filter(r=>{
+    const id=teamNorm(r.usuario);
+    const userOk=!selectedUsers.size||[...selectedUsers].some(u=>teamNorm(u)===id);
+    return (!allowed||allowed.has(id))&&userOk&&(!start||r.data>=start)&&(!end||r.data<=end);
+  });
+  render();
+  renderTeamExtras();
+}
+
+function ensureTeamUi(){
+  const head=document.querySelector('.team-card thead tr');
+  if(head&&!head.querySelector('.team-actions-head')) head.insertAdjacentHTML('beforeend','<th class="team-actions-head">Ações</th>');
+  const team=document.querySelector('.team-card');
+  if(team&&!document.getElementById('semProducaoCard')){
+    const card=document.createElement('article');
+    card.id='semProducaoCard';card.className='card table-card';
+    card.innerHTML='<div class="card-head"><div><h2>Usuários sem produção</h2><p id="semProducaoInfo">Verificando...</p></div></div><div class="table-wrap"><table><thead><tr><th>Nome completo</th><th>ID</th><th>Turno</th><th>Edifício</th></tr></thead><tbody id="semProducaoRows"></tbody></table></div>';
+    team.insertAdjacentElement('afterend',card);
+  }
+  const missing=document.getElementById('semProducaoCard');
+  if(missing&&!document.getElementById('qualityCard')){
+    const card=document.createElement('article');card.id='qualityCard';card.className='card table-card';
+    card.innerHTML='<div class="card-head"><div><h2>Qualidade dos dados</h2><p>Inconsistências encontradas automaticamente</p></div></div><div id="qualitySummary" class="kpis" style="padding:0 19px 19px"></div><div class="table-wrap"><table><thead><tr><th>Problema</th><th>Usuário / Pessoa</th><th>Detalhe</th></tr></thead><tbody id="qualityRows"></tbody></table></div>';
+    missing.insertAdjacentElement('afterend',card);
+  }
+  if(!document.getElementById('teamEditModal')){
+    const modal=document.createElement('div');modal.id='teamEditModal';modal.className='team-edit-modal';
+    modal.innerHTML='<div class="team-edit-box"><div class="card-head"><div><h2>Editar pessoa</h2><p>Atualize o cadastro da equipe.</p></div><button class="ghost mini" id="teamEditClose" type="button">Fechar</button></div><form id="teamEditForm"><input type="hidden" id="teamEditDbId"><div class="team-edit-grid"><div><label>Nome completo</label><input id="teamEditName" required></div><div><label>ID</label><input id="teamEditId" required></div><div><label>Turno</label><select id="teamEditShift"><option value="">Não informado</option><option>T1</option><option>T2</option><option>T3</option></select></div><div><label>Edifício</label><select id="teamEditBuilding"><option value="">Não informado</option><option>CAIXAS</option><option>PROMO</option></select></div></div><div class="form-actions"><button class="primary" type="submit">Salvar alterações</button><button class="ghost" id="teamEditCancel" type="button">Cancelar</button></div><div id="teamEditMessage" class="message"></div></form></div>';
+    document.body.appendChild(modal);
+    const close=()=>modal.classList.remove('open');
+    document.getElementById('teamEditClose').onclick=close;
+    document.getElementById('teamEditCancel').onclick=close;
+    document.getElementById('teamEditForm').onsubmit=saveTeamEdit;
+  }
+}
+
+function openTeamEdit(dbId){
+  const p=teamRowsData.find(x=>x.dbId===dbId);if(!p)return;
+  document.getElementById('teamEditDbId').value=p.dbId;
+  document.getElementById('teamEditName').value=p.nome;
+  document.getElementById('teamEditId').value=p.id;
+  document.getElementById('teamEditShift').value=p.turno;
+  document.getElementById('teamEditBuilding').value=p.edificio;
+  document.getElementById('teamEditMessage').textContent='';
+  document.getElementById('teamEditModal').classList.add('open');
+}
+
+async function saveTeamEdit(e){
+  e.preventDefault();
+  const dbId=Number(document.getElementById('teamEditDbId').value);
+  const nome=document.getElementById('teamEditName').value.trim();
+  const matricula=document.getElementById('teamEditId').value.trim();
+  const turno=document.getElementById('teamEditShift').value||null;
+  const edificio=document.getElementById('teamEditBuilding').value||null;
+  const msg=document.getElementById('teamEditMessage');
+  try{
+    const {data:dup,error:de}=await teamDb.from('equipe').select('id').eq('matricula',matricula).neq('id',dbId).limit(1);if(de)throw de;
+    if(dup?.length) throw new Error('Este ID já pertence a outro cadastro.');
+    const {error}=await teamDb.from('equipe').update({nome_completo:nome,matricula,turno,edificio}).eq('id',dbId);if(error)throw error;
+    msg.textContent='Cadastro atualizado.';await loadTeam();setTimeout(()=>document.getElementById('teamEditModal').classList.remove('open'),350);
+  }catch(err){msg.textContent='Erro: '+err.message;}
+}
+
+async function deleteTeamRow(dbId){
+  const p=teamRowsData.find(x=>x.dbId===dbId);if(!p)return;
+  if(!confirm(`Excluir ${p.nome} da equipe?`))return;
+  try{
+    const {data,error}=await teamDb.from('equipe').delete().eq('id',dbId).select('id');if(error)throw error;
+    if(!data?.length)throw new Error('O Supabase não excluiu o registro.');
+    await loadTeam();
+  }catch(err){alert('Não foi possível excluir: '+err.message);}
+}
+
+function renderTeamExtras(){
+  const missing=document.getElementById('semProducaoRows');
+  if(missing&&typeof allRows!=='undefined'){
+    const start=document.getElementById('filterStart')?.value||new Date().toLocaleDateString('en-CA');
+    const end=document.getElementById('filterEnd')?.value||start;
+    const produced=new Set(allRows.filter(r=>r.data>=start&&r.data<=end).map(r=>teamNorm(r.usuario)));
+    const rows=teamRowsData.filter(teamAllowed).filter(p=>p.id&&!produced.has(teamNorm(p.id)));
+    missing.innerHTML=rows.length?rows.map(p=>`<tr><td>${escapeHtml(p.nome)}</td><td>${escapeHtml(p.id)}</td><td>${escapeHtml(p.turno||'—')}</td><td>${escapeHtml(p.edificio||'—')}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">Todos possuem produção no período.</td></tr>';
+    const info=document.getElementById('semProducaoInfo');if(info)info.textContent=`${rows.length} sem produção • ${dateBR(start)}${end!==start?' até '+dateBR(end):''}`;
+  }
+  const summary=document.getElementById('qualitySummary'),quality=document.getElementById('qualityRows');
+  if(summary&&quality&&typeof allRows!=='undefined'){
+    const ids=new Set(teamRowsData.map(p=>teamNorm(p.id)).filter(Boolean));
+    const prod=[...new Set(allRows.map(r=>String(r.usuario||'').trim()).filter(Boolean))];
+    const unknown=prod.filter(x=>!ids.has(teamNorm(x)));
+    const incomplete=teamRowsData.filter(p=>!p.id||!p.turno||!p.edificio);
+    summary.innerHTML=`<div class="card kpi"><span>IDs na produção sem cadastro</span><strong>${unknown.length}</strong></div><div class="card kpi"><span>Cadastros incompletos</span><strong>${incomplete.length}</strong></div>`;
+    const rows=[...unknown.map(x=>['ID não cadastrado',x,'Existe na produção, mas não está na equipe']),...incomplete.map(p=>['Cadastro incompleto',p.id||p.nome,p.nome])];
+    quality.innerHTML=rows.length?rows.map(r=>`<tr><td>${escapeHtml(r[0])}</td><td>${escapeHtml(r[1])}</td><td>${escapeHtml(r[2])}</td></tr>`).join(''):'<tr><td colspan="3" class="empty">Nenhuma inconsistência encontrada.</td></tr>';
+  }
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  ensureTeamUi();
+  document.getElementById('teamSearch')?.addEventListener('input',renderTeam);
+  document.querySelectorAll('#shiftSwitch .shift-option').forEach(btn=>btn.addEventListener('click',()=>{
+    document.querySelectorAll('#shiftSwitch .shift-option').forEach(b=>b.classList.remove('active'));btn.classList.add('active');teamShift=String(btn.dataset.shift||'').toUpperCase();renderTeam();applyTeamFilters();
+  }));
+  document.querySelectorAll('#buildingSwitch .shift-option').forEach(btn=>btn.addEventListener('click',()=>{
+    document.querySelectorAll('#buildingSwitch .shift-option').forEach(b=>b.classList.remove('active'));btn.classList.add('active');teamBuilding=String(btn.dataset.building||'').toUpperCase();renderTeam();applyTeamFilters();
+  }));
+  document.getElementById('applyFilters')?.addEventListener('click',()=>setTimeout(applyTeamFilters,0));
+  document.getElementById('clearFilters')?.addEventListener('click',()=>setTimeout(()=>{teamShift='';teamBuilding='';document.querySelectorAll('#shiftSwitch .shift-option').forEach(b=>b.classList.toggle('active',!b.dataset.shift));document.querySelectorAll('#buildingSwitch .shift-option').forEach(b=>b.classList.toggle('active',!b.dataset.building));renderTeam();applyTeamFilters();},0));
+  document.getElementById('refreshBtn')?.addEventListener('click',()=>setTimeout(loadTeam,250));
+  loadTeam();
+});
