@@ -1,4 +1,5 @@
 @import url('./filters-modern.css?v=20261021-1');
+@import url('./ui-polish.css?v=20261021-1');
 :root{--button-navy:#0b3b6f;--button-navy-hover:#082f59}
 #profileHeatmapCard{display:none!important}
 .primary,.nav.active,.nav:hover,.shift-option.active,.heat-period button.active,.heat-view button.active,.splash-button{background:var(--button-navy)!important;border-color:var(--button-navy)!important;color:#fff!important;box-shadow:none!important}
