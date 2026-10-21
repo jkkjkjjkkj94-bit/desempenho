@@ -6,7 +6,7 @@ function init(){
 body{background:var(--bg)}
 main{padding-top:24px}
 .sidebar{padding:14px 10px;border-right-color:#edf1f5}
-.brand-icon{background:#0b3b6f;border-radius:11px}
+.brand-icon{width:48px!important;height:48px!important;padding:0!important;background:transparent!important;border-radius:13px!important;overflow:hidden;display:block!important}.brand-icon img{width:100%;height:100%;display:block;object-fit:cover;border-radius:13px}
 .sidebar nav{gap:5px;margin-top:18px}
 .nav{width:42px;height:42px;border-radius:10px;color:#7a8795;transition:.15s}
 .nav.active,.nav:hover{background:#0b3b6f;color:#fff}
@@ -30,6 +30,7 @@ header .shift-switch:nth-of-type(2){grid-column:2}
 @media(max-width:1050px){header>div:first-child{display:block}header .shift-switch{margin-top:9px}}
 `;
  document.head.appendChild(style);
+ const brand=document.querySelector('.brand-icon');if(brand)brand.innerHTML='<img src="logo-desempenho.webp?v=20261021-1" alt="Desempenho de Produtividade">';
  function removeRankAvatars(){document.querySelectorAll('#ranking .rank-avatar').forEach(x=>x.remove())}
  const ranking=document.getElementById('ranking');if(ranking){removeRankAvatars();new MutationObserver(removeRankAvatars).observe(ranking,{childList:true,subtree:true})}
  function hideUz(){
