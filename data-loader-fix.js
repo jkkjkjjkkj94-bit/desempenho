@@ -15,7 +15,6 @@
       while(from<expected){
         const {data,error}=await db.from('separacoes')
           .select('id,usuario,data,caixas_separadas')
-          .order('data',{ascending:true})
           .order('id',{ascending:true})
           .range(from,Math.min(from+size-1,expected-1));
         if(error)throw error;
@@ -26,13 +25,12 @@
       }
       const unique=new Map();
       rows.forEach(r=>unique.set(String(r.id),r));
-      if(unique.size!==expected){
-        throw new Error(`Carregamento incompleto: ${unique.size} de ${expected} registros recebidos.`);
-      }
+      if(unique.size!==expected)throw new Error(`Carregamento incompleto: ${unique.size} de ${expected} registros recebidos.`);
       allRows=[...unique.values()].sort((a,b)=>String(b.data).localeCompare(String(a.data))||Number(b.id)-Number(a.id));
       setConnection(true,`Conectado · ${nf.format(allRows.length)} registros`);
       populateUsers();
-      if(typeof applyTeamFilters==='function'&&(teamShift||teamBuilding))applyTeamFilters();else applyFilters();
+      applyFilters();
+      if(typeof applyTeamFilters==='function'&&(typeof teamShift!=='undefined'||typeof teamBuilding!=='undefined'))applyTeamFilters();
       if(document.getElementById('profileUser')?.value.trim())renderProfile(document.getElementById('profileUser').value);
       if(typeof window.renderAusencias==='function')window.renderAusencias();
       if(typeof window.updateProductivityMetric==='function')window.updateProductivityMetric();
@@ -50,14 +48,7 @@
     const refresh=document.getElementById('refreshBtn');
     if(refresh)refresh.onclick=fetchAllComplete;
     let started=false;
-    const startAfterInitial=()=>{
-      if(started||document.body.classList.contains('loading'))return;
-      started=true;
-      fetchAllComplete();
-    };
-    const observer=new MutationObserver(startAfterInitial);
-    observer.observe(document.body,{attributes:true,attributeFilter:['class']});
-    setTimeout(startAfterInitial,250);
-    setTimeout(()=>{if(!started){started=true;fetchAllComplete()}},8000);
+    const start=()=>{if(started)return;started=true;fetchAllComplete()};
+    setTimeout(start,100);
   });
 })();
